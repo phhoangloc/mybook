@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dangerous_box h1 {
+    font-size: 1.5rem;
+    font-weight: 1000;
+    margin-top: 24px;
+    margin-bottom: 8px;
+}
+
+.dangerous_box h2 {
+    font-size: 1.25rem;
+    font-weight: 900;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.dangerous_box h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-top: 12px;
+    margin-bottom: 8px;
+}
+
+.dangerous_box h4 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.dangerous_box h5 {
+    font-size: 0.9rem;
+    font-weight: 800;
+
+}
+
+.dangerous_box i {
+    font-size: small;
+}
+
+.dangerous_box p,
+.dangerous_box div,
+.dangerous_box li {
+    margin-bottom: 8px;
+    line-height: 1.75;
+}
+
+.dangerous_box img {
+    width: 100%;
+}
+
+.dangerous_box em {
+    opacity: 0.75;
+}
+
+.dangerous_box ul {
+    padding-left: 20px;
+}
+
+.dangerous_box ul li {
+    list-style: disc;
+}
+.infor_box p{
+    margin-bottom: 8px;
+}
+
+.scroll_none::-webkit-scrollbar {
+    display: none;
+}
+
+.cardIn {
+    animation: cardIn 1s ease-out forwards;
+}
+
+@keyframes cardIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-25%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+}
+.textIn {
+    animation: textIn 0.5s ease-out forwards;
+}
+@keyframes textIn {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+}

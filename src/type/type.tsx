@@ -1,0 +1,21 @@
+export type ItemType={
+    id:number,
+    archive:string
+    name:string
+    slug:string
+    coverId:number,
+    cover:{
+        name:string,
+    }
+    host:{
+        username:string,
+    }
+    categoryId:number,
+    category:{
+        name:string,
+    }
+    content:string
+    infor:string
+    createdAt:Date,
+    updateDate:Date,
+}
