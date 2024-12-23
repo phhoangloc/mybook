@@ -1,0 +1,126 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id          Int         @id @default(autoincrement())
+  archive     String      @default("user")
+  username    String      @unique
+  password    String 
+  email       String      @unique
+  active      Boolean     @default(false)
+  position    Role        @default(user)
+  createdAt   DateTime    @default(now())
+  avataId     Int?           
+  avata       Pic?           @relation("UserAvata", fields: [avataId], references: [id])
+  coverId     Int?    
+  cover       Pic?          @relation("UserCover", fields: [coverId], references: [id])
+  pic         Pic[]
+  file        File[]
+  blog        Blog[]
+  book        Book[]
+  page        Page[]
+}
+
+enum Role {
+  user
+  admin
+}
+
+model Pic {
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("pic")
+  hostId            Int
+  host              User          @relation(fields: [hostId], references: [id])   
+  name              String      
+  createdAt         DateTime      @default(now())
+  avataOf           User[]        @relation("UserAvata")
+  coverOf           User[]        @relation("UserCover")
+  coverBlogOf       Blog[]    
+  coverBookOf       Book[]    
+  coverPageOf       Page[]     
+}
+
+model Page  {
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("page")
+  hostId            Int
+  host              User          @relation(fields: [hostId], references: [id])   
+  name              String    
+  slug              String        @unique
+  coverId           Int?    
+  cover             Pic?          @relation(fields: [coverId], references: [id])
+  content           String?       @db.Text
+  createdAt         DateTime      @default(now())
+  updateDate        DateTime      @default(now())
+}
+model File {
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("file")
+  hostId            Int
+  host              User          @relation(fields: [hostId], references: [id])   
+  name              String        
+  fileOf            Book[]        
+  createdAt         DateTime      @default(now())
+}
+model Category{
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("category")
+  name              String    
+  book              Book[]
+}
+model Blog  {
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("blog")
+  hostId            Int
+  host              User          @relation(fields: [hostId], references: [id])   
+  name              String    
+  slug              String        @unique
+  content           String?       @db.Text
+  infor             String?       @db.Text
+  coverId           Int    
+  cover             Pic          @relation(fields: [coverId], references: [id])  
+  createdAt         DateTime      @default(now())
+  updateDate        DateTime      @default(now())
+}
+model Book  {
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("book")
+  hostId            Int
+  host              User          @relation(fields: [hostId], references: [id])   
+  name              String    
+  slug              String        @unique
+  content           String?       @db.Text
+  infor             String?       @db.Text
+  coverId           Int    
+  cover             Pic          @relation(fields: [coverId], references: [id])
+  categoryId        Int    
+  category          Category     @relation(fields: [categoryId], references: [id])
+  fileId            Int?    
+  file              File?         @relation(fields: [fileId], references: [id])
+  createdAt         DateTime      @default(now())
+  updateDate        DateTime      @default(now())
+  chapter           Chapter[]   
+}
+model Chapter  {
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("chapter")
+  bookId            Int
+  index             Int?           
+  book              Book          @relation(fields: [bookId], references: [id])   
+  name              String    
+  slug              String        @unique
+  content           String?       @db.Text
+  createdAt         DateTime      @default(now())
+  updateDate        DateTime      @default(now())
+}
