@@ -18,9 +18,9 @@ export default {
       colors: {
         lv: {
           0: "#ffffff",
-          1: "#ecf2f9",
-          2: "#d9e6f2",
-          4: "#b3cce6",
+          1: "#fff7ed",
+          2: "#ffedd5",
+          4: "#fed7aa",
           8: "#6699cc",
           11: "#4080bf",
           13: "#336699",
@@ -34,6 +34,7 @@ export default {
       width: {
         'full-12': 'calc(100% - 3rem)',
         'full-24': 'calc(100% - 6rem)',
+        'full-48': 'calc(100% - 12rem)',
         'full-sx': 'calc(100% - 375px)',
       },
       height: {

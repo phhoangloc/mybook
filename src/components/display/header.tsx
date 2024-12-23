@@ -50,7 +50,7 @@ const Header = () => {
                     {
                         menus.map((item, index) =>
                             < div key={index} className={`h-12 w-24 flex flex-col justify-center font-bold transition-all duration-100 cursor-pointer opacity-75 hover:opacity-100 text-sm text-center `}
-                                onClick={(e) => { e.stopPropagation(); if(item.link) { toPage.push(item.link)}  }}>
+                                onClick={(e) => { e.stopPropagation(); if (item.link) { toPage.push(item.link) } }}>
                                 {item.name}
                             </div>
 

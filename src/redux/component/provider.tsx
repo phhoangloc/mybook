@@ -7,7 +7,7 @@ type Props = {
 const Provider = ({ children }: Props) => {
 
     return (
-         children
+        children
     )
 }
 

@@ -9,7 +9,7 @@ import { useParams } from 'next/navigation'
 
 const Page = () => {
 
-    const params=useParams<{archive:string,slug:string}>()
+    const params = useParams<{ archive: string, slug: string }>()
     const [data, setData] = useState<ItemType>()
     const [_category, set_category] = useState<string>("")
     const [dataFooter, setDataFooter] = useState<ItemType[]>()
@@ -32,19 +32,19 @@ const Page = () => {
             const result = await ApiItem({ archive: params.archive, category, limit: 10 })
             if (result.success) {
                 setDataFooter(result.data)
-    
+
             } else {
                 setDataFooter([])
             }
         }
-        if(_category){
+        if (_category) {
             getItemRest(_category)
-        }  
+        }
     }, [_category, params.archive])
 
     return (
         <div>
-            <MagazineDetail data={data?data:{} as ItemType} />
+            <MagazineDetail data={data ? data : {} as ItemType} />
             <Footer category={_category} data={dataFooter} />
         </div>
     )

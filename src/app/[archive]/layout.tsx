@@ -1,5 +1,4 @@
 
-import Header from '@/components/display/header'
 import React from 'react'
 import { ApiItem } from '@/api/client'
 
@@ -11,9 +10,9 @@ type Props = {
 export const generateMetadata = async ({ params }: Props) => {
 
     const archive = (await params).archive
-    const result = archive == "blog" ? await ApiItem({ archive: archive }) : await ApiItem({ archive: "page", slug: archive })
+    const result = archive == "page" ? await ApiItem({ archive: "page", slug: archive }) : await ApiItem({ archive: archive })
 
-    if(result.data[0]){
+    if (result.data[0]) {
         return {
             title: archive == "blog" ? result.data[0].archive : result.data[0].name,
             openGraph: {
@@ -28,7 +27,7 @@ export const generateMetadata = async ({ params }: Props) => {
                 }]
             },
         }
-    }else{
+    } else {
         return {
             title: "Buôn Cà Phê",
         }
@@ -38,7 +37,6 @@ export const generateMetadata = async ({ params }: Props) => {
 const layout = ({ children }: Props) => {
     return (
         <div className="bg-lv-0 h-screen">
-            <Header />
             {children}
         </div>
     )
