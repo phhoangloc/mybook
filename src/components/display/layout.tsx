@@ -4,9 +4,11 @@ import store from '@/redux/store'
 import Header from './header'
 import { UserType } from '@/redux/reducer/UserReduce'
 import LoginCard from '../card/loginCard'
-import { ApiLogin } from '@/api/client'
+import { ApiLogin, ApiSignup } from '@/api/client'
 import { setNotice } from '@/redux/reducer/noticeReducer'
 import { setRefresh } from '@/redux/reducer/RefreshReduce'
+import { useParams, useRouter } from 'next/navigation'
+import SignupCard from '../card/signupCard'
 type Props = {
     sidebar: React.ReactNode
     children: React.ReactNode
@@ -14,6 +16,8 @@ type Props = {
 
 const Layout = ({ children, sidebar }: Props) => {
 
+    const params = useParams<{ archive: string }>()
+    const toPage = useRouter()
     const [currentMenu, setCurrentMenu] = useState<boolean>(store.getState().menu)
     const [currentUser, setCurrentUser] = useState<UserType>(store.getState().user)
 
@@ -41,7 +45,28 @@ const Layout = ({ children, sidebar }: Props) => {
             }, 3000)
         }
     }
-
+    const signup = async (body: { username: string, password: string, email: string }) => {
+        const result = await ApiSignup(body)
+        if (result.success) {
+            store.dispatch(setNotice({ success: result.success, msg: result.message, open: true }))
+            setTimeout(() => {
+                store.dispatch(setNotice({ success: result.success, msg: "", open: false }))
+                toPage.push("/login")
+            }, 3000)
+        } else {
+            store.dispatch(setNotice({ success: result.success, msg: result.message, open: true }))
+            setTimeout(() => {
+                store.dispatch(setNotice({ success: result.success, msg: "", open: false }))
+            }, 3000)
+        }
+    }
+    if (params.archive === "signup") {
+        return (
+            <div className='bg-lv-1 dark:bg-lv-19 text-black dark:text-lv-0 h-screen flex flex-col justify-center'>
+                <SignupCard signup={(body) => signup(body)} apicheckemail={process.env.api_url + "api/checkuser?email="} apicheckusername={process.env.api_url + "api/checkuser?username="} />
+            </div>
+        )
+    }
     return (
         currentUser.id ?
             <div className='bg-lv-1 dark:bg-lv-19 text-black dark:text-lv-0'>

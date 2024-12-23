@@ -15,8 +15,8 @@ const EditPicture = (props: Props) => {
         <div className={`w-full relative overflow-hidden h-[400px] ${props.sx}`}>
             {
                 props.src ?
-                    < Image className={`bg-lv-1 dark:bg-lv-19 ${props.cover ? "object-cover" : 'object-contain'}`} src={props.src} alt='avata' fill sizes='100' priority={true} /> :
-                    < div className='h-full bg-lv-1 dark:bg-lv-19 flex flex-col justify-center text-center text-xl rounded'>NO PICTURE</div>
+                    < Image className={`bg-lv-0 dark:bg-lv-18 ${props.cover ? "object-cover" : 'object-contain'}`} src={props.src} alt='avata' fill sizes='100' priority={true} /> :
+                    < div className='h-full bg-lv-0 dark:bg-lv-18 flex flex-col justify-center text-center text-xl rounded'>NO PICTURE</div>
             }
             <InsertPhotoOutlinedIcon className='!w-10 !h-10 p-1 absolute top-1 right-1 cursor-pointer hover:text-lv-0 hover:bg-lv-11 '
                 onClick={() => props.setPictureModal && props.setPictureModal()} />

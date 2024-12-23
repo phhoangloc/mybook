@@ -9,14 +9,14 @@ import CheckIcon from '@mui/icons-material/Check';
 import { TextArea } from './textarea';
 
 type PropsTable = {
-    table: {title:string,content:string}[],
+    table: { title: string, content: string }[],
     sx?: string,
-    exportTable: (tbl: {title:string,content:string}[]) => void
+    exportTable: (tbl: { title: string, content: string }[]) => void
 }
 export const InputTable = (pros: PropsTable) => {
     const [_edit, set_edit] = useState<boolean>(false)
 
-    const [_currentTable, set_currentTable] = useState<{title:string,content:string}[]>([])
+    const [_currentTable, set_currentTable] = useState<{ title: string, content: string }[]>([])
     const [draggedItem, setDraggedItem] = useState<number>(-1);
     const [_index, set_index] = useState<number>(-1)
     const [_indexForward, set_indexForward] = useState<number>(-1)
@@ -37,13 +37,13 @@ export const InputTable = (pros: PropsTable) => {
     }
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
-        if(index !== draggedItem ){ set_indexForward(index)}
-        if(event){event.style.transform = `translate(0px, ${e.pageY - startY}px)`}
+        if (index !== draggedItem) { set_indexForward(index) }
+        if (event) { event.style.transform = `translate(0px, ${e.pageY - startY}px)` }
 
     }
 
     useEffect(() => {
-        if(pros.table ){ set_currentTable(pros.table)}
+        if (pros.table) { set_currentTable(pros.table) }
     }, [pros.table])
 
     const createTable = (body: { title: string, content: string }) => {
@@ -75,7 +75,7 @@ export const InputTable = (pros: PropsTable) => {
             if (index !== -1 && draggedItem !== index) {
                 const _newtable = [..._currentTable].filter((i, ind) => ind != draggedItem)
                 _newtable.splice(index, 0, _currentTable[draggedItem])
-                if(event){event.style.transform = `translate(0px, 0px)`}
+                if (event) { event.style.transform = `translate(0px, 0px)` }
                 set_currentTable(_newtable)
             }
             setDraggedItem(-1)
@@ -84,7 +84,7 @@ export const InputTable = (pros: PropsTable) => {
     }, [_currentTable, _indexForward, _onMouseDown, draggedItem, event])
 
     useEffect(() => {
-        if(_currentTable && _edit === true && pros.exportTable ) {  pros.exportTable(_currentTable)}
+        if (_currentTable && _edit === true && pros.exportTable) { pros.exportTable(_currentTable) }
     }, [_currentTable, _edit, pros])
     return (
         <div className={`relative border border-lv-2 dark:border-lv-17 px-2 ${pros.sx ? pros.sx : ""}`}>
@@ -140,7 +140,7 @@ export const InputTable = (pros: PropsTable) => {
                 }} />
                 <div className='h-12 !w-12 p-3'></div>
                 <AddIcon className="!h-12 !w-12 p-3 cursor-pointer opacity-50 hover:opacity-100 hover:text-lv-11"
-                    onClick={() => {if( _title && _content) { createTable({ title: _title, content: _content })} }} />
+                    onClick={() => { if (_title && _content) { createTable({ title: _title, content: _content }) } }} />
             </div>
         </div>
     )

@@ -1,31 +1,36 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import { EditDetailbyId, EditDetailbySlug } from '@/components/display/detail'
+import { ChapterType, EditDetailbyId, EditDetailbySlug } from '@/components/display/detail'
 import store from '@/redux/store'
 import { ApiItemUser, ApiCreateItem, ApiUpdateItem } from '@/api/user'
 import { setNotice } from '@/redux/reducer/noticeReducer'
 import { useRouter, useParams } from 'next/navigation'
 import { UserType } from '@/redux/reducer/UserReduce'
-export type ItemType={
-    id:number,
-    archive:string
-    name:string
-    slug:string
-    coverId:number,
-    cover:{
-        name:string,
+export type ItemType = {
+    id: number,
+    archive: string
+    name: string
+    slug: string
+    coverId: number,
+    cover: {
+        name: string,
+    },
+    fileId: number,
+    file: {
+        name: string,
     }
-    host:{
-        username:string,
+    host: {
+        username: string,
     }
-    categoryId:number,
-    category:{
-        name:string,
+    categoryId: number,
+    category: {
+        name: string,
     }
-    content:string
-    infor:string
-    createdAt:Date,
-    updateDate:Date,
+    content: string
+    infor: string
+    chapter: ChapterType[]
+    createdAt: Date,
+    updateDate: Date,
 }
 const Page = () => {
     const params = useParams<{ archive: string, slug: string }>()

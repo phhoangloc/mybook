@@ -3,19 +3,31 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation';
 import store from '@/redux/store';
 import { Input } from '../tool/input/input';
-import { Button } from '../button/button';
+import { Button, UploadButton } from '../button/button';
 import EditPicture, { EditAvatar } from '../tool/picture/editPicture'
 import { ModalType, setModal } from '@/redux/reducer/ModalReducer';
 import { TextAreaTool } from '../tool/input/textarea';
 import moment from 'moment';
-import { ApiItemUser } from '@/api/user';
+import { ApiItemUser, ApiUploadFile, ApiDeleteItem } from '@/api/user';
 import Link from 'next/link'
 import { DividerSelect } from '../tool/divider/divider';
 import { ApiItem } from '@/api/client';
 import { InputTable } from '../tool/input/inputTable';
 import { ItemType } from '@/app/[archive]/[slug]/page';
 import { UserType } from '@/redux/reducer/UserReduce';
-
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+export type ChapterType = {
+    id: number,
+    index: number,
+    name: string,
+    slug: string,
+    content: string
+}
 type Props = {
     archive: string,
     slug: string,
@@ -42,9 +54,12 @@ export const EditDetailbySlug = ({ archive, slug, item, createItem, updateItem }
     const [_id, set_id] = useState<number>(0)
     const [_isCoverId, set_isCoverId] = useState<boolean>(false)
     const [_coverId, set_coverId] = useState<number>(0)
-    const [_categoryId, set_categoryId] = useState<number>(0)
-    const [_category, set_category] = useState<{name:string}>()
     const [_coverName, set_coverName] = useState<string>("")
+    const [_fileId, set_fileId] = useState<number | null>(null)
+    const [_fileName, set_fileName] = useState<string>("")
+    const [_categoryId, set_categoryId] = useState<number>(0)
+    const [_category, set_category] = useState<{ name: string }>()
+
     const [_name, set_name] = useState<string>("")
     const [_slug, set_slug] = useState<string>("")
     const [_content, set_content] = useState<string>("")
@@ -53,46 +68,54 @@ export const EditDetailbySlug = ({ archive, slug, item, createItem, updateItem }
     const [_createdDate, set_createdDate] = useState<Date>()
     const [_updateDate, set_updateDate] = useState<Date>()
 
+    const [_isUploadFile, set_isUploadFile] = useState<boolean>(false)
 
-    const body= {
+    const [_chapters, set_chapters] = useState<ChapterType[]>([])
+
+    const body = {
         name: _name,
         slug: _slug,
         categoryId: _categoryId,
         coverId: _coverId,
+        fileId: _fileId,
         infor: _infor,
         content: _newContent || _content,
-        updateDate: new Date()
+        updateDate: new Date(),
+        chapter: _chapters
     } as (ItemType & UserType)
 
     const toPage = useRouter()
 
     useEffect(() => {
-        if(item){
+        if (item) {
             set_id(item.id)
             set_name(item.name)
             set_slug(item.slug)
             set_category(item.category)
             set_categoryId(item.categoryId)
             set_coverId(item.coverId)
+            set_fileId(item.fileId)
+            set_fileName(item.file?.name)
             set_content(item.content)
             set_infor(item.infor)
             set_createdDate(item.createdAt)
             set_updateDate(item.updateDate)
+            set_chapters(item.chapter ? item.chapter : [])
         }
 
     }, [item])
 
-            // get image from id
+    // get image from id
     useEffect(() => {
         const getImageById = async (id: number) => {
-        const result = await ApiItemUser({ position: currentUser.position, archive: "pic", id: id })
-        if (result.success) {
-            set_coverName(result.data[0].name)
+            const result = await ApiItemUser({ position: currentUser.position, archive: "pic", id: id })
+            if (result.success) {
+                set_coverName(result.data[0].name)
+            }
         }
-    }
-        if(_coverId ){
+        if (_coverId) {
             getImageById(_coverId)
-        } 
+        }
     }, [_coverId, currentUser.position])
 
     //get cover id from modal
@@ -113,18 +136,118 @@ export const EditDetailbySlug = ({ archive, slug, item, createItem, updateItem }
         }
     }
     useEffect(() => {
-        if(archive === "blog"){
+        if (archive === "book") {
             getAllCategory("category")
-        } 
+        }
     }, [archive])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getFile = async (e: any) => {
+        set_isUploadFile(true)
+        const files = e.target.files;
+        const file: File = files[0]
+        const reader: FileReader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = async function () {
+            const result = await ApiUploadFile({ position: currentUser.position, archive: "file", file: file })
+            if (result && result.data) {
+                set_isUploadFile(false)
+                set_fileName(result.data.name)
+                set_fileId(result.data.id)
+            }
+        }
+    }
+    const deleteFile = async (id: number) => {
+        set_isUploadFile(true)
+        const result = await ApiDeleteItem({ position: currentUser.position, archive: "file", id })
+        if (result.success) {
+            set_isUploadFile(false)
+            set_fileName("")
+            set_fileId(null)
+        }
+    }
 
+    const [_isChapter, set_isChapter] = useState<boolean>(false)
+    const [_chapter_index, set_chapter_index] = useState<number>(-1)
+    const [_chapter_id, set_chapter_id] = useState<number>(0)
+    const [_chapter_name, set_chapter_name] = useState<string>("")
+    const [_chapter_slug, set_chapter_slug] = useState<string>("")
+    const [_chapter_content, set_chapter_content] = useState<string>("")
+
+    const body_chapter: ChapterType = {
+        id: _chapter_id,
+        index: _chapter_index,
+        name: _chapter_name,
+        slug: _chapter_slug,
+        content: _chapter_content,
+    }
+    useEffect(() => {
+        if (_chapter_index >= 0) {
+            set_chapter_id(_chapters[_chapter_index].id)
+            set_chapter_name(_chapters[_chapter_index].name)
+            set_chapter_slug(_chapters[_chapter_index].slug)
+            set_chapter_content(_chapters[_chapter_index].content)
+        }
+    }, [_chapter_index, _chapters])
+
+    const createChapter = () => {
+        set_chapters(chapter => [...chapter, { name: "newchapter", slug: "slug_" + moment(new Date()).format("YYYYMMDDhhmmss"), content: "" } as ChapterType])
+        set_chapter_name("new chapter")
+        set_chapter_slug("slug_" + moment(new Date()).format("YYYYMMDDhhmmss"))
+        set_chapter_content("")
+        set_chapter_index(_chapters.length)
+    }
+
+    const updateChapter = (index: number) => {
+        const _newcChapter = _chapters
+        _newcChapter[index] = body_chapter
+        set_chapters(_newcChapter)
+        set_chapter_index(-1)
+    }
+    const deleteChapter = (index: number) => {
+        const _newcChapter = _chapters
+        _newcChapter.splice(index, 1)
+        set_chapters(_newcChapter)
+        set_chapter_index(-1)
+    }
+
+    const [draggedItem, setDraggedItem] = useState<number>(-1);
+    const [_onMouseDown, set_onMouseDown] = useState<boolean>(false)
+    const [startY, setStartY] = useState<number>(0)
+    const [event, setEvent] = useState<HTMLDivElement>()
+    const [_chapter_indexForward, set_chapter_indexForward] = useState<number>(-1)
+
+    const [refresh_chapter, setRefresh_chapter] = useState<string>("")
+    const handleMouseDown = (index: number) => {
+        set_onMouseDown(true)
+        setDraggedItem(index)
+    }
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, index: number) => {
+        if (index !== draggedItem) { set_chapter_indexForward(index) }
+        if (event) { event.style.transform = `translate(0px, ${e.pageY - startY}px)` }
+
+    }
+    useEffect(() => {
+        const saveTable = (draggedItem: number, index: number) => {
+            if (index !== -1 && draggedItem !== index) {
+                const _newcChapter = [..._chapters].filter((i, ind) => ind != draggedItem)
+                _newcChapter.splice(index, 0, _chapters[draggedItem])
+                if (event) { event.style.transform = `translate(0px, 0px)` }
+                set_chapters(_newcChapter.map((nch: ChapterType, index: number) => { return { ...nch, index: index } }))
+            }
+            setDraggedItem(-1)
+        }
+        if (!_onMouseDown && draggedItem !== -1) { saveTable(draggedItem, _chapter_indexForward); setRefresh_chapter(n => n + "a") }
+    }, [_chapters, _chapter_indexForward, _onMouseDown, draggedItem, event])
+
+    console.log(_chapters)
     return (
         <div className='flex flex-wrap gap-4 '>
             <div className='w-full bg-lv-0 dark:bg-lv-18 shadow-md rounded h-12 flex flex-col justify-center px-2'>
                 <div className='flex'>
-                    <p onClick={() => toPage.push(`/admin/`)} className="hover:text-lv-11 cursor-pointer" >admin</p>
+                    <p onClick={() => toPage.push(`/`)} className="hover:text-lv-11 cursor-pointer" >admin</p>
                     <p className="px-1"> / </p>
-                    <p onClick={() => toPage.push(`/admin/${archive}/`)} className="hover:text-lv-11 cursor-pointer" >{archive}</p>
+                    <p onClick={() => toPage.push(`/${archive}/`)} className="hover:text-lv-11 cursor-pointer" >{archive}</p>
                 </div>
             </div>
             <div className='w-full bg-lv-0 dark:bg-lv-18 shadow-md rounded h-12 flex flex-col justify-center px-2'>
@@ -137,7 +260,7 @@ export const EditDetailbySlug = ({ archive, slug, item, createItem, updateItem }
                     </div>
                     <div className="flex h-12 gap-1 ml-auto mr-0">
                         <Button name="cancel" onClick={() => toPage.back()} sx="!m-auto !w-24 !h-6  !text-sm" />
-                        <Button name={slug === "news" ? "create" : "save"} onClick={() => slug !== "news" ? updateItem && updateItem(_id, body) : createItem && createItem(body)} sx="!m-0 !m-auto !w-24 !h-6  !text-sm"  />
+                        <Button name={slug === "news" ? "create" : "save"} onClick={() => slug !== "news" ? updateItem && updateItem(_id, body) : createItem && createItem(body)} sx="!m-0 !m-auto !w-24 !h-6  !text-sm" />
                     </div>
                     {_createdDate ?
                         <div className='flex flex-wrap max-w-sm ml-auto gap-1 h-6 flex-col justify-center'>
@@ -150,20 +273,71 @@ export const EditDetailbySlug = ({ archive, slug, item, createItem, updateItem }
                     </div> : null}
                 </div>
                 <div className="w-full grid gap-4 xl:w-9/12">
-                    <EditPicture sx='border-2 border-lv-2 dark:border-lv-17 rounded shadow-md  xl:hidden' cover src={_coverName ? process.env.ftp_url + _coverName : undefined} setPictureModal={() => { store.dispatch(setModal({ value: "viewimage" })); set_isCoverId(true) }} />
+                    <EditPicture sx='border-2 border-lv-2 dark:border-lv-17 rounded shadow-md  xl:hidden' cover={archive === "book" ? false : true} src={_coverName ? process.env.ftp_url + _coverName : undefined} setPictureModal={() => { store.dispatch(setModal({ value: "viewimage" })); set_isCoverId(true) }} />
                     <div className="relative">
-                        <div className='w-full grid  h-max bg-lv-0 dark:bg-lv-18 shadow-md rounded p-2 gap-2'>
-                            <Input name="title" onChange={(v) => set_name(v)} value={_name} />
-                            <Input name="slug" onChange={(v) => set_slug(v)} value={_slug} />
-                            {archive === "blog" ?
-                                <>
-                                    <p className='text-sm px-2'>category</p>
-                                    <DividerSelect name={_category?.name} data={_categories} valueReturn={(v) => {if(v){set_categoryId(Number(v))}else{set_categoryId(Number(_categoryId))}} }/>
-                                </>
-                                : null}
-                            <TextAreaTool value={_content} onChange={(v) => set_newContent(v)} sx='min-h-screen' />
-                            <InputTable table={_infor ? JSON.parse(_infor) : []} exportTable={tbl => set_infor(JSON.stringify(tbl))} />
-                        </div >
+                        <div className="flex">
+                            <div className={`${_isChapter === false ? "bg-lv-0 dark:bg-lv-18  rounded-t-xl" : ""} px-5 cursor-pointer`} onClick={() => set_isChapter(false)}>detail</div>
+                            {archive === "book" && <div className={`${_isChapter === true ? "bg-lv-0 dark:bg-lv-18  rounded-t-xl" : ""} px-5 cursor-pointer`} onClick={() => set_isChapter(true)}>chapter</div>}
+                        </div>
+                        {!_isChapter ?
+                            <div className='w-full grid  h-max bg-lv-0 dark:bg-lv-18 shadow-md p-2 gap-2'>
+                                <Input name="title" onChange={(v) => set_name(v)} value={_name} />
+                                <Input name="slug" onChange={(v) => set_slug(v)} value={_slug} />
+                                {archive === "book" ?
+                                    <>
+                                        <p className='text-sm px-2'>category</p>
+                                        <DividerSelect name={_category?.name} data={_categories} valueReturn={(v) => { if (v) { set_categoryId(Number(v)) } else { set_categoryId(Number(_categoryId)) } }} />
+                                    </>
+                                    : null}
+                                {archive === "book" ?
+                                    <>
+                                        <p className='text-sm px-2'>PDF file</p>
+                                        <div className='flex'>
+                                            <p className='flex flex-col justify-center p-2 opacity-50 text-sm'>{_fileName ? _fileName : "choose file"}</p>
+                                            {
+                                                _isUploadFile ?
+                                                    <RefreshIcon className=" !h-11 !w-11 p-2 flex flex-col justify-center text-center refresh_action rounded cursor-pointer" /> :
+                                                    _fileId ?
+                                                        <CloseIcon className=" !h-11 !w-11 p-2 flex flex-col justify-center text-center bg-lv-11 text-white rounded cursor-pointer" onClick={() => deleteFile(_fileId)} /> :
+                                                        <UploadButton name={<FileUploadIcon />} onClick={(e) => getFile(e)} />}
+                                        </div>
+                                    </>
+                                    : null}
+                                <TextAreaTool value={_content} onChange={(v) => set_newContent(v)} sx='min-h-screen text-sm md:text-base' />
+                                <InputTable table={_infor ? JSON.parse(_infor) : []} exportTable={tbl => set_infor(JSON.stringify(tbl))} />
+                            </div > :
+                            <div className='w-full min-h-screen bg-lv-0 dark:bg-lv-18 shadow-md p-2 gap-2'>
+                                <div className="flex justify-between h-12 col-span-12">
+                                    <div className='h-full flex flex-col justify-center p-2'>Chapter</div>
+                                    <AddIcon className='!w-12 !h-12 p-3 cursor-pointer' onClick={() => createChapter()} />
+                                </div>
+                                <div className={`h-64 overflow-scroll scroll_none bg-lv-1 dark:bg-lv-19 border border-lv-4 dark:border-lv-17 rounded p-2 `}
+                                    key={refresh_chapter}>
+                                    {
+                                        _chapters.sort((a, b) => a.index - b.index).map((chapter: ChapterType, index: number) =>
+                                            <div className={` flex justify-between ${_onMouseDown && _chapter_index === index ? "relative z-[0] shadow-md rounded" : "relative z-[1]"}`} key={index}>
+                                                <div className="flex"
+                                                    onMouseDown={(e) => { handleMouseDown(index); set_chapter_index(index); setStartY(e.pageY); setEvent(e.currentTarget) }}
+                                                    onMouseUp={() => { set_onMouseDown(false) }}
+                                                    onMouseMove={(e) => _onMouseDown && handleMouseMove(e, index)}>
+                                                    <DragIndicatorIcon className='!w-12 !h-12 p-3 hover:cursor-grab active:cursor-grabbing' />
+                                                    <div className='h-12 flex flex-col justify-center cursor-pointer hover:text-lv-11 border-b border-lv-4 dark:border-lv-17' onClick={(e) => { e.stopPropagation(); set_chapter_index(index); set_chapter_id(chapter.id) }}>
+                                                        {chapter?.name}
+                                                    </div>
+                                                </div>
+                                                <DeleteIcon className='!w-12 !h-12 p-3' onClick={(e) => { e.stopPropagation(); deleteChapter(index) }} />
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                                {_chapter_index > -1 ?
+                                    <div key={_chapter_index}>
+                                        <Input name="title" onChange={(v) => set_chapter_name(v)} value={_chapters[_chapter_index]?.name || _chapter_name} />
+                                        <Input name="slug" onChange={(v) => set_chapter_slug(v)} value={_chapters[_chapter_index]?.slug || _chapter_slug} />
+                                        <TextAreaTool value={_chapters[_chapter_index] ? _chapters[_chapter_index].content : ""} onChange={(v) => set_chapter_content(v)} sx='min-h-screen text-sm md:text-base' />
+                                        <div className=" w-max mt-2 ml-auto mr-0"><Button name="update" onClick={() => updateChapter(_chapter_index)} sx='!w-max h-max py-0 px-4 text-sm ' /></div>
+                                    </div> : null}
+                            </div >}
                         <div className="flex h-12">
                             <Button name={slug === "news" ? "create" : "save"} onClick={() => slug !== "news" ? updateItem && updateItem(_id, body) : createItem && createItem(body)} sx="!my-auto !w-24 !h-6  !text-sm" />
                         </div>
@@ -174,7 +348,7 @@ export const EditDetailbySlug = ({ archive, slug, item, createItem, updateItem }
 
     )
 }
-export const EditDetailbyId = ({ slug, item ,updateItem}: Props) => {
+export const EditDetailbyId = ({ slug, item, updateItem }: Props) => {
 
     const [currentUser, setCurrentUser] = useState<UserType>(store.getState().user)
     const [currentModal, setCurrentModal] = useState<ModalType>(store.getState().modal)
@@ -210,7 +384,7 @@ export const EditDetailbyId = ({ slug, item ,updateItem}: Props) => {
     } as (ItemType & UserType)
 
     useEffect(() => {
-        if(item){
+        if (item) {
             set_username(item.username)
             set_email(item.email)
             set_active(Boolean(item.active))
@@ -220,24 +394,24 @@ export const EditDetailbyId = ({ slug, item ,updateItem}: Props) => {
         }
     }, [item])
 
-console.log(_position)
+    console.log(_position)
 
     useEffect(() => {
         const getImageById = async (type: string, id: number) => {
             const result = await ApiItemUser({ position: currentUser.position, archive: "pic", id: id })
             console.log(result)
-    
+
             if (result.success && result.data.length) {
-                if(type === "avata"){
+                if (type === "avata") {
                     set_avataName(result.data[0].name)
                 }
-                if(type === "cover"){
+                if (type === "cover") {
                     set_coverName(result.data[0].name)
                 }
             }
         }
-        if(_avataId){getImageById("avata", _avataId)}
-        if(_coverId){getImageById("cover", _coverId)}
+        if (_avataId) { getImageById("avata", _avataId) }
+        if (_coverId) { getImageById("cover", _coverId) }
     }, [_avataId, _coverId, currentUser.position])
 
     useEffect(() => {
@@ -313,7 +487,7 @@ console.log(_position)
             <div className='bg-bglight dark:bg-bgdark shadow-md rounded'>
                 <div className="flex h-12 gap-1 ml-auto mr-4 w-max">
                     <Button name="cancel" onClick={() => toPage.back()} sx="!m-auto !w-24 !h-6  !text-sm" />
-                    <Button name={"save"} onClick={() => {if(updateItem ) {updateItem(Number(slug), body)}}} sx="!m-0 !m-auto !w-24 !h-6  !text-sm" />
+                    <Button name={"save"} onClick={() => { if (updateItem) { updateItem(Number(slug), body) } }} sx="!m-0 !m-auto !w-24 !h-6  !text-sm" />
                 </div>
             </div>
         </div>

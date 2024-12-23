@@ -209,7 +209,7 @@ export const TextAreaTool = (props: Props) => {
                     </div>
                 </div>
             </div>
-            <div className={` overflow-auto scroll_none pt-5 dangerous_box h-full-12`}>
+            <div className={` overflow-auto scroll_none pt-5 dangerous_box h-full-12 text-justify`}>
                 <Editor editorState={editorState} onChange={(editorState) => setEditorState(editorState)} />
             </div>
         </div >

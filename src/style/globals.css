@@ -68,3 +68,15 @@
 .scroll_none::-webkit-scrollbar {
     display: none;
 }
+.refresh_action{
+    animation: refresh_action 1s infinite;
+}
+
+@keyframes refresh_action{
+    0%{
+        rotate: 0;
+    }
+    100%{
+        rotate: 360deg;
+    }
+}

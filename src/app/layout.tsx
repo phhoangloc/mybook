@@ -5,7 +5,8 @@ import DecideModal from "@/components/modal/decide.modal";
 import NoticeModal from "@/components/modal/notice.modal";
 import { Modal } from "@/components/modal/imagemodal";
 import { Noto_Sans } from 'next/font/google'
-
+import Layout from "@/components/display/layout";
+import { Menu } from "@/components/display/menu";
 export const metadata: Metadata = {
   title: "Admin",
 };
@@ -25,7 +26,9 @@ export default function RootLayout({
           <DecideModal />
           <NoticeModal />
           <Modal />
-          {children}
+          <Layout sidebar={<Menu />}>
+            {children}
+          </Layout>
         </Provider>
       </body>
     </html>

@@ -54,9 +54,19 @@ export const Menu = () => {
                     name: "ADD NEW BLOG",
                     link: "/blog/news"
                 },
+            ]
+        },
+        {
+            name: "BOOK",
+            position: "user",
+            children: [
                 {
-                    name: "Category",
-                    link: "/category"
+                    name: "VIEW BOOK",
+                    link: "/book"
+                },
+                {
+                    name: "ADD NEW BOOK",
+                    link: "/book/news"
                 },
             ]
         },
@@ -89,6 +99,10 @@ export const Menu = () => {
                 },
             ]
         },
+        {
+            name: "CATEGORY",
+            link: "/category"
+        },
     ]
     const toPage = useRouter()
     return (
@@ -105,14 +119,14 @@ export const Menu = () => {
                                             <p>{item.name}</p>
                                             {item.children?.length ? <KeyboardArrowDownIcon className={`transition-all duration-300 ${index === _id ? "-rotate-180" : ""}`} /> : null}
                                         </div>}
-                                    onClick={() => { set_id(currentId => currentId !== index ? index : -1); if(item.link )( toPage.push(item.link)) }}></Divider>
+                                    onClick={() => { set_id(currentId => currentId !== index ? index : -1); if (item.link) (toPage.push(item.link)) }}></Divider>
                                 <div className={`grid overflow-hidden transition-all duration-300 `} style={{ height: item.children?.length && index === _id ? item.children?.length * 48 + "px" : "0" }}>
                                     {
                                         item.children ? item.children.map((child, indexchild) =>
                                             <Divider
                                                 key={indexchild}
                                                 name={child.name}
-                                                onClick={() => { if(child.link) { toPage.push(child.link) } }}
+                                                onClick={() => { if (child.link) { toPage.push(child.link) } }}
                                                 sx='opacity-50 text-sm hover:opacity-100'
                                             >
                                             </Divider>)

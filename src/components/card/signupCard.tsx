@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 type Props = {
-    signup: (body: {username:string,password:string,email:string}) => void,
+    signup: (body: { username: string, password: string, email: string }) => void,
     apicheckusername?: string
     apicheckemail?: string
 }
@@ -27,7 +27,7 @@ const SignupCard = ({ signup, apicheckusername, apicheckemail }: Props) => {
     useEffect(() => {
         const validateForm = async () => {
             const errors: { username?: string, password?: string, email?: string } = {}
-    
+
             if (_username.length != 0 && 6 > _username.length) {
                 errors.username = `username must be longer than 6 character`
             }
@@ -49,16 +49,16 @@ const SignupCard = ({ signup, apicheckusername, apicheckemail }: Props) => {
             if (_password.length != 0 && _password.length < 6) {
                 errors.password = `password must be longer than 6 character`;
             }
-    
+
             setIsErrors(Object.keys(errors).length || _username === "" || _password === "" || _email === "" ? true : false);
             setErrors(errors)
         }
-        if(validateForm){
+        if (validateForm) {
             validateForm();
-        } 
+        }
     }, [_username, _password, _email, apicheckusername, apicheckemail]);
     return (
-        <div className='bg-bglight dark:bg-bgdark m-auto w-11/12 max-w-[440px] text-center p-10 shadow-md grid gap-1 rounded '>
+        <div className='bg-lv-0 dark:bg-lv-18 m-auto w-11/12 max-w-[440px] text-center p-10 shadow-md grid gap-1 rounded '>
             <div className=" h-12 flex flex-col justify-center text-2xl font-bold">
                 <h2>Sign Up</h2>
             </div>
