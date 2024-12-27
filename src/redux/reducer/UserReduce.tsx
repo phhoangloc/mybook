@@ -16,6 +16,7 @@ export type UserType = {
         name: string,
     },
     active: boolean,
+    notifications: { notification: { content: string }, status: boolean }[],
 }
 const UserReducer = createSlice({
     name: "User",
