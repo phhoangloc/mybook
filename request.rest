@@ -1,3 +1,7 @@
-GET http://localhost:4000/api/admin
+POST  http://localhost:4000/api/login
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzM0MzI4NTc2LCJleHAiOjE3MzQ0MTQ5NzZ9.L31QmgwpsyvIqzvT8d5Ctr2xNrO3gWkFFAoReO7CpFQ
+
+{
+    "username":"hoangloc",
+    "password":"031090Ph@buoncf"
+}

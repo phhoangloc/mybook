@@ -29,7 +29,10 @@ model User {
   file        File[]
   blog        Blog[]
   book        Book[]
+  onLoanBook  OnLoanBook[]
   page        Page[]
+  notifications      NotiForUser[] 
+
 }
 
 enum Role {
@@ -111,6 +114,7 @@ model Book  {
   createdAt         DateTime      @default(now())
   updateDate        DateTime      @default(now())
   chapter           Chapter[]   
+  onLoanUser        OnLoanBook[]
 }
 model Chapter  {
   id                Int           @id @default(autoincrement())
@@ -123,4 +127,40 @@ model Chapter  {
   content           String?       @db.Text
   createdAt         DateTime      @default(now())
   updateDate        DateTime      @default(now())
+}
+enum StatusBorrow {
+  onRequest
+  onSend
+  onLoan
+  onReturn
+  onFinish
+}
+
+model OnLoanBook  {
+  onLoanId          Int
+  onLoan            User          @relation(fields: [onLoanId], references: [id])   
+  bookId            Int
+  book              Book          @relation(fields: [bookId], references: [id])   
+  createdAt         DateTime      @default(now())
+  updateDate        DateTime      @default(now())
+  status            StatusBorrow  @default(onRequest)
+  @@id([onLoanId, bookId])
+}
+model Notification {
+  id                Int           @id @default(autoincrement())
+  archive           String        @default("notification")
+  content           String        
+  forUser           NotiForUser[] 
+  createdAt         DateTime      @default(now())
+  updateDate        DateTime      @default(now())
+}
+model NotiForUser {
+  forUserId         Int
+  forUser           User          @relation(fields: [forUserId], references: [id])   
+  notificationId    Int
+  notification      Notification  @relation(fields: [notificationId], references: [id])   
+  createdAt         DateTime      @default(now())
+  updateDate        DateTime      @default(now())
+  status            Boolean       @default(false)
+  @@id([forUserId, notificationId])
 }

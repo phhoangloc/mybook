@@ -15,11 +15,16 @@ export const GetAdminController = async (req: CustomRequest, res: Response) => {
         include: {
             avata: true,
             cover: true,
+            notifications: {
+                include: {
+                    notification: true
+                }
+            },
         },
     })
-    const [{ id, archive, username, email, avataId, coverId, position, active }] = users
+    const [{ id, archive, username, email, avataId, coverId, position, active, notifications }] = users
     outPut.success = true
-    outPut.data = [{ id, archive, username, email, avataId, coverId, position, active }]
+    outPut.data = [{ id, archive, username, email, avataId, coverId, position, active, notifications }]
     res.json(outPut)
 }
 export const GetOneAdminController = async (req: CustomRequest, res: Response) => {
@@ -27,14 +32,19 @@ export const GetOneAdminController = async (req: CustomRequest, res: Response) =
         include: {
             avata: true,
             cover: true,
+            notifications: {
+                include: {
+                    notification: true
+                }
+            },
         },
         where: {
             id: Number(req.id)
         },
     })
-    const [{ id, archive, username, email, avataId, coverId, position, active }] = users
+    const [{ id, archive, username, email, avataId, coverId, position, active, notifications }] = users
     outPut.success = true
-    outPut.data = { id, archive, username, email, avataId, coverId, position, active }
+    outPut.data = { id, archive, username, email, avataId, coverId, position, active, notifications, }
     res.json(outPut)
 }
 export const UpdateAdminController = async (req: CustomRequest, res: Response) => {

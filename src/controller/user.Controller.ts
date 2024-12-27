@@ -12,6 +12,18 @@ export const GetUserController = async (req: CustomRequest, res: Response) => {
         include: {
             avata: true,
             cover: true,
+            onLoanBook: {
+                include: {
+                    book: {
+                        include: { cover: true, host: true }
+                    }
+                }
+            },
+            notifications: {
+                include: {
+                    notification: true
+                }
+            },
         },
         where: {
             id: Number(req.id)
@@ -19,9 +31,9 @@ export const GetUserController = async (req: CustomRequest, res: Response) => {
 
     })
     if (user?.id) {
-        const { id, username, email, avata, cover, position } = user
+        const { id, username, email, avata, cover, position, onLoanBook, notifications } = user
         outPut.success = true
-        outPut.data = { id, username, email, avata, cover, position }
+        outPut.data = { id, username, email, avata, cover, position, onLoanBook, notifications }
         res.json(outPut)
     } else {
         outPut.success = false
@@ -44,8 +56,19 @@ export const UpdateUserController = async (req: CustomRequest, res: Response) =>
         username: body.username,
         password: mahoa_password,
         coverId: Number(body.coverId),
-        avataId: Number(body.avataId)
+        avataId: Number(body.avataId),
+        onLoanBook: {
+            upsert:
+                body.onLoanBook.map((b: any) => {
+                    return {
+                        where: { onLoanId_bookId: { onLoanId: id, bookId: Number(b.id) } },
+                        update: {},
+                        create: { bookId: Number(b.id) }
 
+                    }
+                })
+
+        }
     }
     if (Number(id) === Number(req.query.id)) {
         await prisma.user.update({

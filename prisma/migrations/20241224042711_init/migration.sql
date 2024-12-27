@@ -1,0 +1,15 @@
+-- CreateTable
+CREATE TABLE `OnLoanBook` (
+    `onLoanId` INTEGER NOT NULL,
+    `bookId` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updateDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`onLoanId`, `bookId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `OnLoanBook` ADD CONSTRAINT `OnLoanBook_onLoanId_fkey` FOREIGN KEY (`onLoanId`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `OnLoanBook` ADD CONSTRAINT `OnLoanBook_bookId_fkey` FOREIGN KEY (`bookId`) REFERENCES `Book`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
